@@ -14,11 +14,25 @@ class MLP(nn.Module):
         self.fc1 = nn.Linear(input_size, hidden_size)
         self.fc2 = nn.Linear(hidden_size, output_size)
         self.relu = nn.ReLU()
-        self.log_soft = nn.LogSoftmax(1)
+        self.log_soft = nn.LogSoftmax(1) #数据有可能是(batch_size, output_size)这样的格式，dim=1代表在output_size这个维度上做操作
 
     def forward(self, x):
         out = self.fc1(x)
         out = self.relu(out)
         out = self.fc2(out)
         out = self.log_soft(out)
+        return out
+class MLP2(nn.Module):
+    def __init__(self, input_size, hidden_size,output_size):
+        super(MLP2, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, output_size)
+        self.relu = nn.ReLU()
+        # self.soft = nn.Softmax(1) #数据有可能是(batch_size, output_size)这样的格式，dim=1代表在output_size这个维度上做操作
+
+    def forward(self, x):
+        out = self.fc1(x)
+        out = self.relu(out)
+        out = self.fc2(out)
+        # out = self.soft(out)
         return out

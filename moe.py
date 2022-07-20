@@ -13,8 +13,7 @@ import torch.nn as nn
 from torch.distributions.normal import Normal
 import numpy as np
 
-from mlp import MLP
-
+from mlp import MLP,MLP2
 
 class SparseDispatcher(object):
     """Helper for implementing a mixture of experts.
@@ -142,7 +141,7 @@ class MoE(nn.Module):
         self.w_gate = nn.Parameter(torch.zeros(input_size, num_experts), requires_grad=True)
         self.w_noise = nn.Parameter(torch.zeros(input_size, num_experts), requires_grad=True)
 
-        self.softplus = nn.Softplus()
+        self.softplus = nn.Softplus()#平滑版本的relu
         self.softmax = nn.Softmax(1)
         self.register_buffer("mean", torch.tensor([0.0]))
         self.register_buffer("std", torch.tensor([1.0]))
@@ -267,4 +266,5 @@ class MoE(nn.Module):
         gates = dispatcher.expert_to_gates()
         expert_outputs = [self.experts[i](expert_inputs[i]) for i in range(self.num_experts)]
         y = dispatcher.combine(expert_outputs)
+        # print("after dispatcher.combine, y= ",y.shape)
         return y, loss

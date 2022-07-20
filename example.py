@@ -5,6 +5,7 @@
 # Author: David Rau
 #
 
+import os
 import torch
 from torch import nn
 from torch.optim import Adam
@@ -15,6 +16,7 @@ from moe import MoE
 def train(x, y, model, loss_fn, optim):
     # model returns the prediction and the loss that encourages all experts to have equal importance and load
     y_hat, aux_loss = model(x.float())
+    print("y_hat",y_hat.shape, y_hat)
     # calculate prediction loss
     loss = loss_fn(y_hat, y)
     # combine losses
@@ -39,20 +41,22 @@ def eval(x, y, model, loss_fn):
 def dummy_data(batch_size, input_size, num_classes):
     # dummy input
     x = torch.rand(batch_size, input_size)
+    print("x.shape",x.shape)
 
     # dummy target
     y = torch.randint(num_classes, (batch_size, 1)).squeeze(1)
+    print("y.shape",y.shape)
     return x, y
 
 
 # arguments
-input_size = 1000
-num_classes = 20
+input_size = 100
+num_classes = 2
 num_experts = 10
 hidden_size = 64
 batch_size = 5
 k = 4
-
+# os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 # determine device
 if torch.cuda.is_available():
     device = torch.device('cuda')
@@ -66,6 +70,7 @@ loss_fn = nn.NLLLoss()
 optim = Adam(model.parameters())
 
 x, y = dummy_data(batch_size, input_size, num_classes)
+print(x,y)
 
 # train
 model = train(x.to(device), y.to(device), model, loss_fn, optim)
