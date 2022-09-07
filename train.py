@@ -1,10 +1,3 @@
-# Sparsely-Gated Mixture-of-Experts Layers.
-# See "Outrageously Large Neural Networks"
-# https://arxiv.org/abs/1701.06538
-#
-# Author: David Rau
-#
-
 import os
 import sys
 from datetime import datetime
@@ -16,10 +9,10 @@ from torch.utils.data import DataLoader
 import pandas as pd
 # from torch.utils.tensorboard import SummaryWriter
 
-
 from moe import MoE
 from mmoe import MmoE
 from datasets import MyDataset
+import arguments
 
 def initiate_datasets(file_name,input_size,division=0):
     df = pd.read_csv(file_name + ".csv", encoding="utf-8")
@@ -56,9 +49,6 @@ def train4epoch(model, train_loader, loss_fn1,loss_fn2,optim, loss1_fraction=0.5
 now = datetime.now()
 time_str = "_" + now.strftime("(%d-%m-%Y-%H)")
 print("test for time_str: ", time_str)
-# with open("./log{0}.txt".format(time_str), 'w') as f:
-#     oldstdout = sys.stdout
-#     sys.stdout = f
 
 # arguments
 epoch = 12
@@ -79,15 +69,15 @@ else:
     device = torch.device('cpu')
 
 # instantiate the MoE layer
+# model = torch.load("./saved_model/model{0}_{1}.pth".format("_(19-07-2022-21)",12))
 model = MmoE(input_size,moe_output_size,num_classes,num_experts,moe_hidden_size,mlp_hidden_size)
 model = model.to(device)
 optim = Adam(model.parameters())
 
+# file_name = "../LongHu/Data_Preprocess/data/424data_output_expanded_cleaned_prepared"
 file_name = "../LongHu/Data_Preprocess/data/424data_1w_output_expanded_cleaned_prepared"
-# file_name = "../LongHu/Data_Preprocess/data/424data_1w_output_expanded_cleaned_prepared"
 train_dataset, ori_dataset = initiate_datasets(file_name,input_size)
-loss_fn1 = nn.CrossEntropyLoss()
-loss_fn2 = nn.CrossEntropyLoss() #nn.NLLLoss()
+loss_fn1,loss_fn2 = nn.CrossEntropyLoss(),nn.CrossEntropyLoss()
 #weight=torch.tensor([1,dataset.neg_pos_ratio[0]],device=device,dtype=torch.float16)
 len_train_dataset, len_test_dataset = len(train_dataset),len(ori_dataset)
 print("length of train_dataset: {}".format(len_train_dataset))
